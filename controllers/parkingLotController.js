@@ -28,7 +28,7 @@ export default class parkingLotController {
   static createPark(req, res) {
     const { parkname, initialSpots, status } = req.body;
     let i;
-    db.Park.findOne({
+    db.ParkingLot.findOne({
       where: {
         parkname,
         userId: req.userId,
@@ -44,7 +44,7 @@ export default class parkingLotController {
           });
         }
         if (!foundPark) {
-          db.Park.create({
+          db.ParkingLot.create({
             parkname,
             userId: req.userId,
             initialSpots,
@@ -52,7 +52,7 @@ export default class parkingLotController {
           }).then(newPark => {
             for (i = 1; i <= initialSpots; i++) {
               const spotname = generateSpot();
-              db.Spot.create({
+              db.ParkingSlot.create({
                 spotname,
                 userId: req.userId,
                 parkId: newPark.id,
@@ -91,7 +91,7 @@ export default class parkingLotController {
   static editPark(req, res) {
     const { parkname, status } = req.body;
 
-    db.Park.findOne({
+    db.ParkingLot.findOne({
       where: {
         id: req.params.id,
         userId: req.userId,
@@ -142,7 +142,7 @@ export default class parkingLotController {
    * @returns {Object} Class instance.
    */
   static deletePark(req, res) {
-    db.Park.findOne({
+    db.ParkingLot.findOne({
       where: {
         id: req.params.id,
         userId: req.userId,
@@ -150,7 +150,7 @@ export default class parkingLotController {
     })
       .then(foundPark => {
         if (foundPark) {
-          db.Park.destroy({
+          db.ParkingLot.destroy({
             where: {
               id: req.params.id,
               userId: req.userId,
@@ -192,7 +192,7 @@ export default class parkingLotController {
    * @returns {Object} Class instance.
    */
   static getParks(req, res) {
-    db.Park.findAll({
+    db.ParkingLot.findAll({
       where: {
         userId: req.userId,
       },
@@ -234,7 +234,7 @@ export default class parkingLotController {
    * @returns {Object} Class instance.
    */
   static getAPark(req, res) {
-    db.Park.findOne({
+    db.ParkingLot.findOne({
       where: {
         id: req.params.id,
       },

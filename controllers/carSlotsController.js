@@ -28,23 +28,23 @@ export default class carSpotController {
 
   static assignCarSpot(req, res) {
     const { allocated_duration, occupant_id } = req.body;
-    db.Spot.findOne({
+    db.ParkingSlot.findOne({
       where: {
         id: req.params.id,
       },
     })
-      .then(foundSpot => {
-        if (!foundSpot) {
+      .then(foundSlot => {
+        if (!foundSlot) {
           return res.status(404).json({
             errors,
           });
         }
-        if (foundSpot && foundSpot.status == 'Free') {
-          foundSpot.update({ status: 'Occupied' }).then(updatedSpot => {
-            db.CarSpot.create({
+        if (foundSlot && foundSlot.status == 'Free') {
+          foundSlot.update({ status: 'Occupied' }).then(updatedSpot => {
+            db.CarSlot.create({
               entry_timestamp: moment.utc(),
               allocated_duration,
-              occupant_id,
+              occupant_id, // for maintanice mode active
               spotId: req.params.id,
             }).then(updatedSpot =>
               res.status(200).json({
@@ -52,7 +52,7 @@ export default class carSpotController {
               })
             );
           });
-        } else if (foundSpot.status == 'Occupied') {
+        } else if (foundSlot.status == 'Occupied') {
           res.status(400).json({
             errors: {
               status: '400',
@@ -74,9 +74,9 @@ export default class carSpotController {
   static removeCarSpot(req, res) {
     const { id } = req.params; // Refers to CarSpot ID
 
-    db.CarSpot.findOne({
+    db.CarSlot.findOne({
       where: {
-        id
+        id,
       },
     })
       .then(foundCarSpot => {
@@ -88,12 +88,20 @@ export default class carSpotController {
         if (foundCarSpot) {
           const { spotId } = foundCarSpot; // Grab the Spot ID from DB
           foundCarSpot.update({ exit_timestamp: moment.utc() });
-          db.Spot.findOne({
+          const startTime = new Date(foundCarSpot.entry_timestamp);
+          const endTime = new Date(moment.utc());
+          const difference = endTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
+          const resultInMinutes = Math.round(difference / 60000);
+          db.ParkingSlot.findOne({
             where: {
               id: spotId,
             },
-          }).then(foundSpot => {
-            foundSpot.update({ status: 'Free' });
+          }).then(foundSlot => {
+            foundSlot.update({
+              status: 'Free',
+              message: `The parking fee is ${10 *
+                Math.ceil(resultInMinutes / 60)}`,
+            });
             return res.status(201).json({
               message: 'Successfully removed car from spot',
             });

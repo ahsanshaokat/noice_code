@@ -34,7 +34,7 @@ export default function managerRoutes(app) {
   app
     .route('/api/v1/parking-slots/:id')
     // delete a slot
-    .delete(authorization, verifyId, slot.deleteSpot);
+    .delete(authorization, verifyId, slot.deleteSlot);
 
   // assign car to slot
   app

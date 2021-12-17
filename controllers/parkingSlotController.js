@@ -34,14 +34,14 @@ export default class parkingSlotController {
     })}`;
 
     const { status } = req.body;
-    db.Spot.findOne({
+    db.ParkingSlot.findOne({
       where: {
         spotname,
         userId: req.userId,
       },
     })
-      .then(foundSpot => {
-        if (foundSpot) {
+      .then(foundSlot => {
+        if (foundSlot) {
           return res.status(409).json({
             errors: {
               title: 'Conflict',
@@ -49,8 +49,8 @@ export default class parkingSlotController {
             },
           });
         }
-        if (!foundSpot) {
-          db.Spot.create({
+        if (!foundSlot) {
+          db.ParkingSlot.create({
             spotname,
             userId: req.userId,
             parkId: req.params.id,
@@ -85,16 +85,16 @@ export default class parkingSlotController {
    *
    * @returns {Object} Class instance.
    */
-  static deleteSpot(req, res) {
-    db.Spot.findOne({
+  static deleteSlot(req, res) {
+    db.ParkingSlot.findOne({
       where: {
         id: req.params.id,
         userId: req.userId,
       },
     })
-      .then(foundSpot => {
-        if (foundSpot) {
-          db.Spot.destroy({
+      .then(foundSlot => {
+        if (foundSlot) {
+          db.ParkingSlot.destroy({
             where: {
               id: req.params.id,
               userId: req.userId,
@@ -108,7 +108,7 @@ export default class parkingSlotController {
             })
           );
         }
-        if (!foundSpot) {
+        if (!foundSlot) {
           return res.status(404).json({
             errors,
           });
